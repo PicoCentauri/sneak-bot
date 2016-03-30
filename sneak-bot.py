@@ -36,10 +36,22 @@ def read_recipients():
     return recipients
     file.close()
 
+def mail_auth():
+    try:
+        server = smtplib.SMTP(serveradress, 587)
+        server.ehlo()
+        server.starttls()
+        server.login(user, pwd)
+        server.close()
+        return True
+    except:
+        return False
+
+
 def send_mail(recipient, subject, body):
     import smtplib
 
-    FROM = user+"@physik.fu-berlin.de"
+    FROM = user+"@zedat.fu-berlin.de"
     TO = recipient if type(recipient) is list else [recipient]
     SUBJECT = subject
     TEXT = body
@@ -48,7 +60,7 @@ def send_mail(recipient, subject, body):
     message = """\From: %s\nTo: %s\nSubject: %s\n\n%s
     """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
     try:
-        server = smtplib.SMTP("mail.zedat.fu-berlin.de", 587)
+        server = smtplib.SMTP(serveradress, 587)
         server.ehlo()
         server.starttls()
         server.login(user, pwd)
@@ -56,15 +68,24 @@ def send_mail(recipient, subject, body):
         server.close()
         pass
     except:
-        print "Failed to send mail."
+        print("Failed to send mail.")
 
 ##############
 #### MAIN ####
 ##############
 
-print("Type username and password for Zedat Mail authentification.")
-user = raw_input("username: ")
-pwd = getpass.getpass()
+serveradress = "mail.zedat.fu-berlin.de"
+
+print("Type in username and password for zedat mail authentification.")
+
+auth = False
+while auth == False:
+    user = raw_input("username: ")
+    pwd = getpass.getpass()
+    auth = mail_auth()
+    if auth == False:
+        print("Server authentification failed. try another username or password or cancel with ctrl+d.")
+
 print("Try every 30s if reservation is available and send a mail to all recipients\
 in the recipients.dat file.")
 
@@ -84,4 +105,7 @@ while True:
         body = "Sneak tickets are available. For buying or reservation go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
         send_mail(recipients,subject,body)
+        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and Mails sent!")
         break
+
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets not available.")
