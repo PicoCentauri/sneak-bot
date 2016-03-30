@@ -30,7 +30,9 @@ def read_recipients():
     file = open('recipients.dat', 'r')
     recipients = []
     for line in file:
-        recipients.append(line[:-1])
+        if line[0] != '#':
+            recipients.append(line[:-1])
+
     return recipients
     file.close()
 
