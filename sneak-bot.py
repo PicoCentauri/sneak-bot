@@ -20,7 +20,7 @@ import time
 import smtplib
 import getpass
 
-def read_url(URL):
+def read_htmlSource(URL):
     sock = urllib.urlopen(URL)
     htmlSource = sock.read()
     sock.close()
@@ -36,7 +36,7 @@ def read_recipients():
     return recipients
     file.close()
 
-def mail_auth():
+def auth_mail(user,pwd):
     try:
         server = smtplib.SMTP(serveradress, 587)
         server.ehlo()
@@ -82,7 +82,7 @@ auth = False
 while auth == False:
     user = raw_input("username: ")
     pwd = getpass.getpass()
-    auth = mail_auth()
+    auth = auth_mail(user,pwd)
     if auth == False:
         print("Server authentification failed. try another username or password or cancel with ctrl+d.")
 
@@ -94,7 +94,7 @@ URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/ve
 #main loop
 while True:
     while True:
-        htmlSource = read_url(URL)
+        htmlSource = read_htmlSource(URL)
         if htmlSource.find("503 Service Temporarily Unavailable") != -1:
             time.sleep(30)
         else: break
