@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+
+#####################
+#### DESCRIPTION ####
+#####################
+
+# This script will send a mail to all recipients in a recipients.dat file if tickets for
+# the Berlin CineStar Sneak Prieview (usually Thursday 20:00) are available.
+# It will check every 30s if tickets are available and stops when after sending the mails.
+
+# The mail server and authentification uses StartTLS and the the standard Mail server
+# from the Freie Univerität Berlin. You can of course modify these for your porpose.
+
+#####################
+#### DEFINITIONS ####
+######################
+
 import urllib
 import time
 import smtplib
@@ -28,8 +45,6 @@ def send_mail(recipient, subject, body):
     # Prepare actual message
     message = """\From: %s\nTo: %s\nSubject: %s\n\n%s
     """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
-    print(user,pwd)
-    print(message)
     try:
         server = smtplib.SMTP("mail.zedat.fu-berlin.de", 587)
         server.ehlo()
@@ -41,6 +56,10 @@ def send_mail(recipient, subject, body):
     except:
         print "Failed to send mail."
 
+##############
+#### MAIN ####
+##############
+
 print("Type username and password for Zedat Mail authentification.")
 user = raw_input("username: ")
 pwd = getpass.getpass()
@@ -49,15 +68,18 @@ in the recipients.dat file.")
 
 URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/veranstaltungen/original-sneak-mysterie-movie-ov/"
 
+#main loop
 while True:
-    htmlSource = read_url(URL)
-    if htmlSource.find("503 Service Temporarily Unavailable") != -1:
-        time.sleep(30)
-    else: break
+    while True:
+        htmlSource = read_url(URL)
+        if htmlSource.find("503 Service Temporarily Unavailable") != -1:
+            time.sleep(30)
+        else: break
 
 
-if htmlSource.find(">20:00</time>") != -1:
-    subject = "Sneak tickets available!"
-    body = "Sneak tickets are available. For buying or reservation go to:\n"+URL+"\n\nBest,\nSneak-Bot"
-    recipients = read_recipients()
-    send_mail(recipients,subject,body)
+    if htmlSource.find(">20:00</time>") != -1:
+        subject = "Sneak tickets available!"
+        body = "Sneak tickets are available. For buying or reservation go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
+        recipients = read_recipients()
+        send_mail(recipients,subject,body)
+        break
