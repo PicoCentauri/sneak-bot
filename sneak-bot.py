@@ -102,7 +102,7 @@ while True:
 
     if htmlSource.find(">20:00</time>") != -1:
         subject = "Sneak tickets available!"
-        body = "Sneak tickets are available. For buying or reservation go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
+        body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
         send_mail(recipients,subject,body)
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and Mails sent!")
