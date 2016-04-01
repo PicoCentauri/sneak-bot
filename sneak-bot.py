@@ -1,8 +1,9 @@
+#TODO change to python3
+#TODO change libray to
 # -*- coding: utf-8 -*-
 
-#####################
-#### DESCRIPTION ####
-#####################
+#==== DESCRIPTION ====
+#=====================
 
 # This script will send a mail to all recipients in a recipients.dat file if tickets for
 # the Berlin CineStar Sneak Prieview (usually Thursday 20:00) are available.
@@ -11,9 +12,8 @@
 # The mail server and authentification uses StartTLS and the the standard Mail server
 # from the Freie Univerität Berlin. You can of course modify these for your porpose.
 
-#####################
-#### DEFINITIONS ####
-######################
+#==== DEFINITIONS ====
+#=====================
 
 import urllib
 import time
@@ -70,9 +70,8 @@ def send_mail(recipient, subject, body):
     except:
         print("Failed to send mail.")
 
-##############
-#### MAIN ####
-##############
+#==== MAIN ====
+#==============
 
 serveradress = "mail.zedat.fu-berlin.de"
 
@@ -86,26 +85,25 @@ while auth == False:
     if auth == False:
         print("Server authentification failed. try another username or password or cancel with ctrl+d.")
 
-print("Try every 30s if reservation is available and send a mail to all recipients\
+print("Try every 30s if tickets are available and send a mail to all recipients \
 in the recipients.dat file.")
 
 URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/veranstaltungen/original-sneak-mysterie-movie-ov/"
 
 #main loop
 while True:
-    while True:
-        htmlSource = read_htmlSource(URL)
-        if htmlSource.find("503 Service Temporarily Unavailable") != -1:
-            time.sleep(30)
-        else: break
+    htmlSource = read_htmlSource(URL)
+    if htmlSource.find("503 Service Temporarily Unavailable") != -1:
+        time.sleep(10) #wait 10 seconds if query is rejected
+        continue
 
-
-    if htmlSource.find(">20:00</time>") != -1:
+    if htmlSource.find("Ticket-Reminder") == -1:
         subject = "Sneak tickets available!"
         body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
         send_mail(recipients,subject,body)
-        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and Mails sent!")
+        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and mails sent!")
         break
 
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets not available.")
+    time.sleep(30)
