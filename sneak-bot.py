@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
+
 #TODO change to python3
 #TODO change libray to
 # -*- coding: utf-8 -*-
-
 #==== DESCRIPTION ====
 #=====================
 
