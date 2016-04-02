@@ -1,9 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#TODO change to python3
-#TODO change libray to
-# -*- coding: utf-8 -*-
 #==== DESCRIPTION ====
 #=====================
 
@@ -17,16 +14,18 @@
 #==== DEFINITIONS ====
 #=====================
 
-import urllib
+import urllib.request
 import time
 import smtplib
 import getpass
+import keyring
+import configparser
+import os
 
 def read_htmlSource(URL):
-    sock = urllib.urlopen(URL)
-    htmlSource = sock.read()
-    sock.close()
-    return htmlSource
+    with urllib.request.urlopen(URL) as response:
+        htmlSource = response.read()
+    return htmlSource.decode("utf-8")
 
 def read_recipients():
     file = open('recipients.dat', 'r')
@@ -72,6 +71,16 @@ def send_mail(recipient, subject, body):
     except:
         print("Failed to send mail.")
 
+def read_config():
+    path = os.path.join(os.path.expanduser('~'),'.sneak_bot')
+    config = configparser.ConfigParser()
+    try:
+        config.read(os.path.join(path,'config.ini'))
+    except: pass
+    return config
+
+def write_config(username,password_saved):
+
 #==== MAIN ====
 #==============
 
@@ -81,7 +90,7 @@ print("Type in username and password for zedat mail authentification.")
 
 auth = False
 while auth == False:
-    user = raw_input("username: ")
+    user = input("username: ")
     pwd = getpass.getpass()
     auth = auth_mail(user,pwd)
     if auth == False:
@@ -95,11 +104,11 @@ URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/ve
 #main loop
 while True:
     htmlSource = read_htmlSource(URL)
-    if htmlSource.find("503 Service Temporarily Unavailable") != -1:
+    if "503 Service Temporarily Unavailable" in htmlSource:
         time.sleep(10) #wait 10 seconds if query is rejected
         continue
 
-    if htmlSource.find("Ticket-Reminder") == -1:
+    if "Ticket-Reminder" not in htmlSource:
         subject = "Sneak tickets available!"
         body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
