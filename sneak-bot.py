@@ -108,6 +108,7 @@ if config.sections() == []:
     print("Do you want to save your password for future usage ?")
     password_saved = input("(y/n): ").lower() in "yes"
     if password_saved == True:
+        #TODO add fallback when no keychain is supported
         keyring.set_password("sneak_bot", user, pwd)
     write_config()
 else:
@@ -125,11 +126,13 @@ in the recipients.dat file.")
 #main loop
 URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/veranstaltungen/original-sneak-mysterie-movie-ov/"
 while True:
-    htmlSource = read_htmlSource(URL)
-    if "503 Service Temporarily Unavailable" in htmlSource:
-        time.sleep(10) #wait 10 seconds if query is rejected
+    try:
+        htmlSource = read_htmlSource(URL)
+    except urllib.error.URLError as e:
+        print(e.reason)
+        time.sleep(10) #wait 10 seconds if an error occur
         continue
-    elif "Ticket-Reminder" not in htmlSource:
+    if "Ticket-Reminder" not in htmlSource:
         subject = "Sneak tickets available!"
         body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
