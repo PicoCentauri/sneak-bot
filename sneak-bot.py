@@ -79,42 +79,63 @@ def read_config():
     except: pass
     return config
 
-def write_config(username,password_saved):
+def write_config():
+    path = os.path.join(os.path.expanduser('~'),'.sneak_bot')
+    if os.path.exists(path) == False:
+        os.mkdir(path)
+    config['mail']={'user': user,
+                    'password_saved': str(password_saved).lower()}
+
+    with open(os.path.join(path,'config.ini'), 'w') as configfile:
+        config.write(configfile)
 
 #==== MAIN ====
 #==============
-
+config = read_config()
 serveradress = "mail.zedat.fu-berlin.de"
 
-print("Type in username and password for zedat mail authentification.")
+if config.sections() == []:
+    #getting username and passowrd for sending mails.
 
-auth = False
-while auth == False:
-    user = input("username: ")
-    pwd = getpass.getpass()
-    auth = auth_mail(user,pwd)
-    if auth == False:
-        print("Server authentification failed. try another username or password or cancel with ctrl+d.")
+    print("Type in username and password for zedat mail authentification.")
+    auth = False
+    while auth == False:
+        user = input("username: ")
+        pwd = getpass.getpass()
+        auth = auth_mail(user,pwd)
+        if auth == False:
+            print("Server authentification failed. try another username or password or cancel with ctrl+d.")
+    print("Do you want to save your password for future usage ?")
+    password_saved = input("(y/n): ").lower() in "yes"
+    if password_saved == True:
+        keyring.set_password("sneak_bot", user, pwd)
+    write_config()
+else:
+    user = config['mail']['user']
+    print(config['mail'].getboolean('password_saved'))
+    if config['mail'].getboolean('password_saved') == True:
+        pwd = keyring.get_password("sneak_bot", user)
+    else:
+        print("Type password for zedat mail authentification.")
+        pwd = getpass.getpass()
 
 print("Try every 30s if tickets are available and send a mail to all recipients \
 in the recipients.dat file.")
 
-URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/veranstaltungen/original-sneak-mysterie-movie-ov/"
-
 #main loop
+URL = "http://www.cinestar.de/de/kino/berlin-cinestar-original-im-sony-center/veranstaltungen/original-sneak-mysterie-movie-ov/"
 while True:
     htmlSource = read_htmlSource(URL)
     if "503 Service Temporarily Unavailable" in htmlSource:
         time.sleep(10) #wait 10 seconds if query is rejected
         continue
-
-    if "Ticket-Reminder" not in htmlSource:
+    elif "Ticket-Reminder" not in htmlSource:
         subject = "Sneak tickets available!"
         body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
         send_mail(recipients,subject,body)
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and mails sent!")
         break
-
-    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets not available.")
-    time.sleep(30)
+    else:
+        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets not available.")
+        time.sleep(30)
