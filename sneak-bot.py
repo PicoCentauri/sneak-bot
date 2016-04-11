@@ -130,7 +130,7 @@ while True:
     try:
         htmlSource = read_htmlSource(URL)
     except urllib.error.URLError as e:
-        print(e.reason)
+        print(e.reason+": wait another 10 seconds.")
         time.sleep(10) #wait 10 seconds if an error occur
         continue
     if "Ticket-Reminder" not in htmlSource:
