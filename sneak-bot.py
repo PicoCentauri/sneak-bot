@@ -97,7 +97,7 @@ serveradress = "mail.zedat.fu-berlin.de"
 if config.sections() == []:
     #getting username and passowrd for sending mails.
 
-    print("Type in username and password for zedat mail authentification.")
+    print("First time of using Sneak-Bot. Type in username and password for zedat mail authentification.")
     auth = False
     while auth == False:
         user = input("username: ")
@@ -119,7 +119,8 @@ else:
     else:
         print("Type password for zedat mail authentification.")
         pwd = getpass.getpass()
-
+print("If zou want to reset sneak bot just delete the .sneak_bot folder in your home directory:\n\nrm -r "+
+os.path.join(os.path.expanduser('~'),'.sneak_bot')+"\n")
 print("Try every 30s if tickets are available and send a mail to all recipients \
 in the recipients.dat file.")
 
