@@ -14,18 +14,38 @@
 #==== DEFINITIONS ====
 #=====================
 
+#standard packages
 import urllib.request
 import time
+import datetime
 import smtplib
 import getpass
-import keyring
 import configparser
 import os
+
+#non-standard packages
+from lxml import html
+import keyring
 
 def read_htmlSource(URL):
     with urllib.request.urlopen(URL) as response:
         htmlSource = response.read()
     return htmlSource.decode("utf-8")
+
+def next_weekday(d, weekday):
+    days_ahead = weekday - d.weekday()
+    if days_ahead <= 0: # Target day already happened this week
+        days_ahead += 7
+    return d + datetime.timedelta(days_ahead)
+
+def get_ticketURL(pagestring):
+    tree = html.fromstring(pagestring)
+    time = str(next_weekday(datetime.date.today(), 3))+"T20:00:00+02:00"
+
+    split = tree.xpath("//a[time/@datetime='"+time+"']/@href")[0].split('&')[0:2] # cut unnecassy information about the iframe
+    ticketURL = "&".join(split)
+
+    return ticketURL
 
 def read_recipients():
     file = open('recipients.dat', 'r')
@@ -130,12 +150,15 @@ while True:
     try:
         htmlSource = read_htmlSource(URL)
     except urllib.error.URLError as e:
-        print(e.reason+": wait another 10 seconds.")
+        print(e.reason+": wait 10 seconds before trying again...")
         time.sleep(10) #wait 10 seconds if an error occur
         continue
     if "Ticket-Reminder" not in htmlSource:
+        ticketURL = get_ticketURL(htmlSource)
+
         subject = "Sneak tickets available!"
-        body = "Sneak tickets are available. For reserving or buying go to:\n\n"+URL+"\n\nBest,\nSneak-Bot"
+        body = "Sneak tickets are available. For reserving or buying go to:\n\n"+ticketURL+"\
+\n\nMore Information about the CineStar Sneak-Preview at:\n\n"+URL+"\n\nBest,\nSneak-Bot"
         recipients = read_recipients()
         send_mail(recipients,subject,body)
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+": Sneak tickets AVAIALABLE and mails sent!")
