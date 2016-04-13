@@ -76,10 +76,10 @@ def send_mail(recipient, subject, body):
     TO = recipient if type(recipient) is list else [recipient]
     SUBJECT = subject
     TEXT = body
-
+    DATE = time.strftime("%a, %d %b %Y %H:%M:%S %z",time.localtime())
     # Prepare actual message
-    message = """\From: %s\nTo: %s\nSubject: %s\n\n%s
-    """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
+    message = """From: %s\nDate: %s\nTo: %s\nSubject: %s\n\n%s
+    """ % (FROM,DATE, ", ".join(TO), SUBJECT, TEXT)
     try:
         server = smtplib.SMTP(serveradress, 587)
         server.ehlo()
