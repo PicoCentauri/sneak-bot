@@ -133,7 +133,7 @@ else:
     else:
         print("Type password for zedat mail authentification.")
         pwd = getpass.getpass()
-print("If zou want to reset sneak bot just delete the .sneak_bot folder in your home directory:\n\nrm -r "+
+print("If you want to reset sneak bot just delete the .sneak_bot folder in your home directory:\n\nrm -r "+
 os.path.join(os.path.expanduser('~'),'.sneak_bot')+"\n")
 print("Try every 30s if tickets are available and send a mail to all recipients \
 in the recipients.dat file.")
