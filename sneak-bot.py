@@ -17,7 +17,6 @@
 #standard packages
 import urllib.request
 import time
-import datetime
 import smtplib
 import getpass
 import configparser
@@ -32,18 +31,13 @@ def read_htmlSource(URL):
         htmlSource = response.read()
     return htmlSource.decode("utf-8")
 
-def next_weekday(d, weekday):
-    days_ahead = weekday - d.weekday()
-    if days_ahead <= 0: # Target day already happened this week
-        days_ahead += 7
-    return d + datetime.timedelta(days_ahead)
-
 def get_ticketURL(pagestring):
     tree = html.fromstring(pagestring)
-    time = str(next_weekday(datetime.date.today(), 3))+"T20:00:00+02:00"
 
-    split = tree.xpath("//a[time/@datetime='"+time+"']/@href")[0].split('&')[0:2] # cut unnecassy information about the iframe
-    ticketURL = "&".join(split)
+    try:
+        split = tree.xpath("id('overview')/x:div[3]/x:div[2]/x:div[1]//x:a/@href").split('&')[0:2] # cut unnecassy information about the iframe
+        ticketURL = "&".join(split)
+    except: ticketURL = ""
 
     return ticketURL
 
