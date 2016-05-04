@@ -33,11 +33,10 @@ def read_htmlSource(URL):
 
 def get_ticketURL(pagestring):
     tree = html.fromstring(pagestring)
-
     try:
-        split = tree.xpath("id('overview')/x:div[3]/x:div[2]/x:div[1]//x:a/@href").split('&')[0:2] # cut unnecassy information about the iframe
+        split = tree.xpath("//div[@class='table']//a/@href")[0].split('&')[0:2]# cut unnecassy information about the iframe
         ticketURL = "&".join(split)
-    except: ticketURL = ""
+    except: ticketURL = "not found"
 
     return ticketURL
 
