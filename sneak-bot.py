@@ -21,6 +21,7 @@ import smtplib
 import getpass
 import configparser
 import os
+import sys
 
 #non-standard packages
 from lxml import html
@@ -41,7 +42,8 @@ def get_ticketURL(pagestring):
     return ticketURL
 
 def read_recipients():
-    file = open('recipients.dat', 'r')
+    scriptpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+    file = open(scriptpath+'/recipients.dat', 'r')
     recipients = []
     for line in file:
         if line[0] != '#':
